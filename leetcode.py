@@ -16,6 +16,7 @@ from config import COOKIE_PATH
 from config import SOLUTION_FOLDER
 from config import SOLUTION_FOLDER_NAME
 from config import MAX_DIGIT_LEN
+from config import CONTENT
 from quiz import QuizItem
 from utils import rep_unicode_in_code
 from utils import check_and_make_dir
@@ -126,7 +127,6 @@ class Leetcode:
         # TODO: here can optimize
         if not self.is_login:
             self.login()
-        print(self.is_login)
         self.load_items_from_api()
         self.load_submissions()
         self.load_solutions_to_items()
@@ -178,7 +178,6 @@ class Leetcode:
     def load_submissions(self):
         """ load all submissions from leetcode """
         # set limit a big num
-        print('API load submissions request 2 seconds per request')
         print('Please wait ...')
         limit = 20
         offset = 0
@@ -251,7 +250,7 @@ class Leetcode:
         solution: type dict
         """
         solution_url = solution['submission_url']
-        print(solution_url)
+        # print(solution_url)
         r = self.session.get(solution_url, proxies=PROXIES)
         assert r.status_code == 200
         pattern = re.compile(
@@ -361,15 +360,15 @@ class Leetcode:
         """ download all solutions with single thread """
         ac_items = [i for i in self.items if i.is_pass]
         for quiz in ac_items:
-            time.sleep(1)
+            # time.sleep(1)
             self._download_code_by_quiz(quiz)
 
-    def download_with_thread_pool(self):
+    def download_with_thread_pool(self, workers):
         """ download all solutions with multi thread """
         ac_items = [i for i in self.items if i.is_pass]
         from concurrent.futures import ThreadPoolExecutor
 
-        pool = ThreadPoolExecutor(max_workers=4)
+        pool = ThreadPoolExecutor(max_workers=workers)
         for quiz in ac_items:
             pool.submit(self._download_code_by_quiz, quiz)
         pool.shutdown(wait=True)
@@ -377,16 +376,13 @@ class Leetcode:
     def write_readme(self):
         """Write Readme to current folder"""
         languages_readme = ','.join([x.capitalize() for x in self.languages])
-        md = '''# :pencil2: Leetcode Solutions with {language}
+        md = '''# Leetcode Solutions with {language}
 Update time:  {tm}
 Auto created by [leetcode_generate](https://github.com/ygowill/leetcode)
 I have solved **{num_solved}   /   {num_total}** problems
 while there are **{num_lock}** problems still locked.
-If you want to use this tool please follow this [Usage Guide](https://github.com/bonfy/leetcode/blob/master/README_leetcode_generate.md)
-If you have any question, please give me an [issue]({repo}/issues).
-If you are loving solving problems in leetcode, please contact me to enjoy it together!
 (Notes: :lock: means you need to buy a book from Leetcode to unlock the problem)
-| # | Title | Source Code | Article | Difficulty |
+ # | Title | Source Code | Article | Difficulty
 |:---:|:---:|:---:|:---:|:---:|'''.format(
             language=languages_readme,
             tm=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
@@ -397,7 +393,9 @@ If you are loving solving problems in leetcode, please contact me to enjoy it to
         )
         md += '\n'
         for item in self.items:
-            article = ''
+            if CONTENT != 'all' and item.status != CONTENT:
+                continue
+            article = '&nbsp;'
             if item.question__article__slug:
                 article = '[:memo:](https://leetcode.com/articles/{article}/)'.format(
                     article=item.question__article__slug
@@ -411,7 +409,7 @@ If you are loving solving problems in leetcode, please contact me to enjoy it to
                         id=str(item.question_id).zfill(int(MAX_DIGIT_LEN)),
                         title=item.question__title_slug,
                     )
-                    language = ''
+                    language = '&nbsp;'
                     language_lst = [
                         i['lang']
                         for i in item.solutions
@@ -428,7 +426,7 @@ If you are loving solving problems in leetcode, please contact me to enjoy it to
                         )
                         language += ' '
                 else:
-                    language = ''
+                    language = '&nbsp;'
             language = language.strip()
             md += '|{id}|[{title}]({url})|{language}|{article}|{difficulty}|\n'.format(
                 id=item.question_id,

@@ -3,6 +3,7 @@ import sched
 import time
 
 from leetcode import Leetcode
+from config import WORKERS
 
 schedule = sched.scheduler(time.time, time.sleep)
 
@@ -15,8 +16,10 @@ def do_job(lc):
         # leetcode.dowload()
         # we use multi thread
         print('download all leetcode solutions')
-        # leetcode.download_with_thread_pool()
-        lc.download()
+        if WORKERS != 0:
+            lc.download_with_thread_pool(WORKERS)
+        else:
+            lc.download()
     else:
         for qid in sys.argv[1:]:
             print('begin leetcode by id: {id}'.format(id=qid))

@@ -2,12 +2,15 @@ import configparser
 from pathlib import Path
 from collections import namedtuple
 
+content_list = ['ac', 'all']
 
 def get_user_config_from_file():
     cp = configparser.ConfigParser()
     cp.read(CONFIG_FILE)
     if 'leetcode' not in list(cp.sections()):
-        raise Exception('tag [leetcode] not exist! please check yor leetcode.conf')
+        raise Exception('tag [leetcode] not exist! Please check your leetcode.conf')
+    if 'readme' not in list(cp.sections()):
+        raise Exception('tag [readme] not exist! Please check your leetcode.conf')
 
     username = cp.get('leetcode', 'username')
     password = cp.get('leetcode', 'password')
@@ -27,17 +30,23 @@ def get_user_config_from_file():
     driverpath = cp.get('leetcode', 'driverpath')
     if not repo:
         raise Exception('Please configure your dirver path in leetcode.conf')
+
+    content = cp.get('readme', 'content')
+    if content not in content_list:
+        content = 'all'
+
     rst = dict(
         username=username,
         password=password,
         language=language.lower(),
         repo=repo,
         driverpath=driverpath,
+        content=content
     )
     return rst
 
 
-def get_path_config_from_file():
+def get_local_config_from_file():
     cp = configparser.ConfigParser()
     cp.read(CONFIG_FILE)
     if 'solution' not in list(cp.sections()):
@@ -49,9 +58,15 @@ def get_path_config_from_file():
     if not solution_folder_name:
         raise Exception('Please configure your solution folder name in leetcode.conf')
 
-    max_digit_len = cp.get('solution', 'max_digit_len')
+    max_digit_len = cp.get('program', 'max_digit_len')
     if not max_digit_len:
         raise Exception('Please configure your max_digit_len in leetcode.conf')
+
+    workers = cp.get('program', 'multi_thread_num')
+    if not workers:
+        workers = 0
+    else:
+        workers = int(workers)
 
     base_url = cp.get('url', 'base_url')
     if not base_url:
@@ -60,7 +75,8 @@ def get_path_config_from_file():
     rst = dict(
         folder_name=solution_folder_name,
         max_digit_len=max_digit_len,
-        base_url=base_url
+        base_url=base_url,
+        workers=workers
     )
     return rst
 
@@ -68,13 +84,15 @@ def get_path_config_from_file():
 HOME = Path.cwd()
 CONFIG_FILE = 'leetcode.conf'
 CONFIG = get_user_config_from_file()
-PATHCONFIG = get_path_config_from_file()
+LOCAL_CONFIG = get_local_config_from_file()
 
-MAX_DIGIT_LEN = PATHCONFIG['max_digit_len']
-SOLUTION_FOLDER_NAME = PATHCONFIG['folder_name']
+CONTENT = CONFIG['content']
+MAX_DIGIT_LEN = LOCAL_CONFIG['max_digit_len']
+WORKERS = LOCAL_CONFIG['workers']
+SOLUTION_FOLDER_NAME = LOCAL_CONFIG['folder_name']
 SOLUTION_FOLDER = Path.joinpath(HOME, SOLUTION_FOLDER_NAME)
 COOKIE_PATH = Path.joinpath(HOME, 'cookies.json')
-BASE_URL = PATHCONFIG['base_url']
+BASE_URL = LOCAL_CONFIG['base_url']
 # If you have proxy, change PROXIES below
 PROXIES = None
 HEADERS = {
