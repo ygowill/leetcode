@@ -1,4 +1,6 @@
 .idea/
 __pycache__/
 venv/
+
+cookies.json
 leetcode.conf

@@ -71,6 +71,7 @@ class Leetcode:
         buttons = driver.find_elements_by_tag_name('button')
         login.send_keys(usr)
         password.send_keys(pwd)
+        time.sleep(2)
         for button in buttons:
             if button.text == "登录" or button.text == "Sign In":
                 driver.execute_script("arguments[0].click();", button)
@@ -102,6 +103,7 @@ class Leetcode:
     def load_items_from_api(self):
         """ load items from api"""
         api_url = self.base_url + '/api/problems/algorithms/'  # NOQA
+
         r = self.session.get(api_url, proxies=PROXIES)
         assert r.status_code == 200
         rst = json.loads(r.text)
