@@ -382,7 +382,8 @@ Auto created by [leetcode_generate](https://github.com/ygowill/leetcode)
 I have solved **{num_solved}   /   {num_total}** problems
 while there are **{num_lock}** problems still locked.
 (Notes: :lock: means you need to buy a book from Leetcode to unlock the problem)
- # | Title | Source Code | Article | Difficulty
+
+| id | Title | Source Code | Article | Difficulty
 |:---:|:---:|:---:|:---:|:---:|'''.format(
             language=languages_readme,
             tm=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
