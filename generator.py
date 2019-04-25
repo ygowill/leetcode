@@ -27,7 +27,7 @@ def do_job(lc):
     print('Leetcode finish dowload')
     lc.write_readme()
     print('Leetcode finish write readme')
-    # lc.push_to_github()
+    lc.push_to_github()
     print('push to github')
 
 
