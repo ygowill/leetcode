@@ -1,4 +1,4 @@
 .idea/
-__pachche__/
+__pycache__/
 venv/
 leetcode.conf
