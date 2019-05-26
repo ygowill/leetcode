@@ -33,5 +33,6 @@ def do_job(lc):
 
 if __name__ == '__main__':
     lc = Leetcode()
-    schedule.enter(0, 0, do_job, (lc,))
-    schedule.run()
+    do_job(lc)
+    # schedule.enter(0, 0, do_job, (lc,))
+    # schedule.run()

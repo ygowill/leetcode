@@ -43,9 +43,10 @@ class Leetcode:
         ]
         self.prolangdict = dict(zip(self.languages, proglangs))
         self.base_url = BASE_URL
+        requests.adapters.DEFAULT_RETRIES = 5
         self.session = requests.Session()
+        self.session.keep_alive = False
         self.session.headers.update(HEADERS)
-        self.session.proxies = PROXIES
         self.cookies = None
 
     def login(self):
@@ -70,8 +71,9 @@ class Leetcode:
         password = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "password")))
         buttons = driver.find_elements_by_tag_name('button')
         login.send_keys(usr)
+        time.sleep(1)
         password.send_keys(pwd)
-        time.sleep(2)
+        time.sleep(1)
         for button in buttons:
             if button.text == "登录" or button.text == "Sign In":
                 driver.execute_script("arguments[0].click();", button)
@@ -104,7 +106,7 @@ class Leetcode:
         """ load items from api"""
         api_url = self.base_url + '/api/problems/algorithms/'  # NOQA
 
-        r = self.session.get(api_url, proxies=PROXIES)
+        r = self.session.get(api_url)
         assert r.status_code == 200
         rst = json.loads(r.text)
         # make sure your user_name is not None
@@ -173,7 +175,6 @@ class Leetcode:
         r = self.session.get(api_url, proxies=PROXIES)
         if r.status_code != 200:
             return False
-
         data = json.loads(r.text)
         return 'user_name' in data and data['user_name'] != ''
 
@@ -190,7 +191,7 @@ class Leetcode:
                 self.base_url, limit, offset, last_key
             )
 
-            resp = self.session.get(submissions_url, proxies=PROXIES)
+            resp = self.session.get(submissions_url)
             # print(submissions_url, ':', resp.status_code)
             assert resp.status_code == 200
             data = resp.json()
@@ -253,7 +254,7 @@ class Leetcode:
         """
         solution_url = solution['submission_url']
         # print(solution_url)
-        r = self.session.get(solution_url, proxies=PROXIES)
+        r = self.session.get(solution_url)
         assert r.status_code == 200
         pattern = re.compile(
             r'<meta name=\"description\" content=\"(?P<question>.*)\" />\n    \n    <meta property=\"og:image\"',

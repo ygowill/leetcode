@@ -95,6 +95,7 @@ COOKIE_PATH = Path.joinpath(HOME, 'cookies.json')
 BASE_URL = LOCAL_CONFIG['base_url']
 # If you have proxy, change PROXIES below
 PROXIES = None
+
 HEADERS = {
     'Accept': '*/*',
     'Accept-Encoding': 'gzip,deflate,sdch',
